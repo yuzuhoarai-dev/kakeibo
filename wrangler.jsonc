@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kakeibo",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-30",
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "kakeibo",
+      "database_id": "UNRESOLVED_EXISTING_D1_ID"
+    }
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "HOUSEHOLD_PASSWORD",
+      "store_id": "6ddd01c47713444a8eaded468efee022",
+      "secret_name": "HOUSEHOLD_PASSWORD"
+    }
+  ]
+}
