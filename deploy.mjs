@@ -46,4 +46,40 @@ function resolveDatabase(config, databases) {
     typeof id !== 'string' ||
     !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)
   ) {
-    throw new Error('DB IDが不正
+    throw new Error('DB IDが不正です。公開を中止します。');
+  }
+  if (
+    binding.database_id !== 'UNRESOLVED_EXISTING_D1_ID' &&
+    binding.database_id !== id
+  ) {
+    throw new Error('設定済みDBと一致しません。公開を中止します。');
+  }
+  return {
+    ...config,
+    d1_databases: config.d1_databases.map(
+      item => item === binding ? {...item, database_id: id} : item
+    )
+  };
+}
+
+try {
+  const config = JSON.parse(
+    await readFile(new URL('wrangler.jsonc', root), 'utf8')
+  );
+  const databases = JSON.parse(wrangler(['d1', 'list', '--json'], true));
+  const resolved = resolveDatabase(config, databases);
+  try {
+    await writeFile(generated, JSON.stringify(resolved, null, 2) + '\n');
+    wrangler([
+      'deploy',
+      '--config',
+      fileURLToPath(generated),
+      '--keep-vars'
+    ]);
+  } finally {
+    await rm(generated, {force: true});
+  }
+} catch (error) {
+  console.error(error.message);
+  process.exitCode = 1;
+}
